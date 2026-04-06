@@ -5,4 +5,5 @@ __pycache__/
 *.js
 *.scpt
 local_tmp/
+playwright_browsers/
 .DS_Store
