@@ -13,22 +13,23 @@ async def get_price(page, url):
     
     # Extract the visible text content from the body to find prices
     text_content = await page.evaluate("document.body.innerText")
+    lines = [line.strip() for line in text_content.split('\n') if line.strip()]
     
-    # Regex to find prices like $1,299 or $999.00
-    visible_prices = re.findall(r'\$[0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{2})?', text_content)
+    target_rooms = ["Balcony", "Deluxe Balcony", "Premium Deluxe Balcony", "Mini-Suite"]
+    found_prices = {}
     
-    if visible_prices:
-        # Use a dictionary to count frequencies to figure out the most prominent prices
-        price_counts = {}
-        for p in visible_prices:
-            price_counts[p] = price_counts.get(p, 0) + 1
-            
-        print(f"Prices found on page:")
-        # Sort by frequency, then print
-        for price, count in sorted(price_counts.items(), key=lambda x: x[1], reverse=True):
-            print(f"  {price} (appears {count} times)")
+    for i, line in enumerate(lines):
+        if line in target_rooms:
+            # The price is on the line immediately preceding the title
+            if i > 0 and lines[i-1].startswith('$'):
+                found_prices[line] = lines[i-1]
+                
+    if found_prices:
+        print("Prices found on page:")
+        for room, price in found_prices.items():
+            print(f"  {room}: {price}")
     else:
-        print(f"No prices found on page. It might be sold out or blocked by a captcha.")
+        print("No target prices found.")
 
 async def main():
     urls = [
