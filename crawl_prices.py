@@ -1,0 +1,56 @@
+import asyncio
+import re
+from playwright.async_api import async_playwright
+
+async def get_price(page, url):
+    print(f"Navigating to {url}...")
+    # Princess site might be slow, so we give it a good timeout.
+    await page.goto(url, wait_until='domcontentloaded', timeout=60000)
+    
+    # Let the JS execute and render the pricing blocks.
+    # Princess pages usually show a skeleton and then load the price.
+    await page.wait_for_timeout(5000) # Wait 5 additional seconds for any API prices to settle
+    
+    # Extract the visible text content from the body to find prices
+    text_content = await page.evaluate("document.body.innerText")
+    
+    # Regex to find prices like $1,299 or $999.00
+    visible_prices = re.findall(r'\$[0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{2})?', text_content)
+    
+    if visible_prices:
+        # Use a dictionary to count frequencies to figure out the most prominent prices
+        price_counts = {}
+        for p in visible_prices:
+            price_counts[p] = price_counts.get(p, 0) + 1
+            
+        print(f"Prices found on page:")
+        # Sort by frequency, then print
+        for price, count in sorted(price_counts.items(), key=lambda x: x[1], reverse=True):
+            print(f"  {price} (appears {count} times)")
+    else:
+        print(f"No prices found on page. It might be sold out or blocked by a captcha.")
+
+async def main():
+    urls = [
+        "https://www.princess.com/cruise-search/stateroom-type/?voyageCode=1639&guestCount=2&stateRoomId=B",
+        "https://www.princess.com/cruise-search/stateroom-type/?voyageCode=1639&guestCount=2&stateRoomId=M"
+    ]
+    
+    async with async_playwright() as p:
+        # Launching in headless mode to not interrupt the user.
+        # Adding some stealth arguments.
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context(
+            user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            viewport={'width': 1920, 'height': 1080}
+        )
+        page = await context.new_page()
+        
+        for url in urls:
+            await get_price(page, url)
+            print("-" * 50)
+            
+        await browser.close()
+
+if __name__ == '__main__':
+    asyncio.run(main())
