@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.chinglanho.alaskacruise</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/chinglanho/work/ml/llm/AlaskaCruise/run_monitor.sh</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key>
+            <integer>8</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>14</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>20</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+    </array>
+    <key>StandardOutPath</key>
+    <string>/Users/chinglanho/work/ml/llm/AlaskaCruise/launchd_out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/chinglanho/work/ml/llm/AlaskaCruise/launchd_err.log</string>
+    <key>WorkingDirectory</key>
+    <string>/Users/chinglanho/work/ml/llm/AlaskaCruise</string>
+</dict>
+</plist>
